@@ -1,0 +1,49 @@
+# to run define K3S_TOKEN, K3S_VERSION is optional, eg:
+#   K3S_TOKEN=${RANDOM}${RANDOM}${RANDOM} docker-compose up
+
+version: '3'
+services:
+
+  server:
+    # image: "mheers/k3s-airgap:${K3S_VERSION:-latest}"
+    # image: "rancher/k3s:${K3S_VERSION:-latest}"
+    image: "mheers/k3s-airgapped:${K3S_VERSION:-latest}"
+    build: .
+    # command: server -v 5 --vmodule httplog=5 --kube-apiserver-arg audit-log-path=/var/log/audit.log --kube-apiserver-arg audit-log-maxage=30 --kube-apiserver-arg audit-log-maxbackup=10 --kube-apiserver-arg audit-log-maxsize=100 
+    command:
+      - server
+      - --vmodule
+      - httplog=5
+      # - --disable=coredns
+      # - --disable=servicelb
+      - --disable=traefik
+      # - --disable=local-storage
+      - --disable=metrics-server
+      - --kubelet-arg=minimum-image-ttl-duration=120m0s
+      - --kubelet-arg=image-gc-high-threshold=100
+      - --kubelet-arg=image-gc-low-threshold=99
+      # - --container-runtime-endpoint=/run/containerd/containerd.sock
+    tmpfs:
+    - /run
+    - /var/run
+    # ulimits:
+    #   nproc: 65535
+    #   nofile:
+    #     soft: 65535
+    #     hard: 65535
+    privileged: true
+    environment:
+    - K3S_TOKEN=${K3S_TOKEN:-241902235628383}
+    - K3S_KUBECONFIG_OUTPUT=/output/kubeconfig.yaml
+    - K3S_KUBECONFIG_MODE=666
+    volumes:
+      # - k3s-server:/var/lib/rancher/k3s
+      # This is just so that we get the kubeconfig file out
+      - ./output:/output
+    ports:
+    - 6443:6443  # Kubernetes API Server
+    # - 80:80      # Ingress controller port 80
+    # - 443:443    # Ingress controller port 443
+
+# volumes:
+#   k3s-server: {}

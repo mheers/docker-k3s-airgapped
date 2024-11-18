@@ -22,15 +22,9 @@ services:
       - --kubelet-arg=minimum-image-ttl-duration=120m0s
       - --kubelet-arg=image-gc-high-threshold=100
       - --kubelet-arg=image-gc-low-threshold=99
-      # - --container-runtime-endpoint=/run/containerd/containerd.sock
     tmpfs:
     - /run
     - /var/run
-    # ulimits:
-    #   nproc: 65535
-    #   nofile:
-    #     soft: 65535
-    #     hard: 65535
     privileged: true
     environment:
     - K3S_TOKEN=${K3S_TOKEN:-241902235628383}
